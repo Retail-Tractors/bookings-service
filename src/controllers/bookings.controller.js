@@ -74,5 +74,67 @@ async function createBooking(req, res) {
     }
 };
 
+async function getAllBookings(req, res) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
-module.exports = { testeUserToken, updateBookingStatus, createBooking };
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(0);
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+
+    let filters = {};
+    if (req.query.status) {
+        if (['pending', 'confirmed', 'cancelled', 'completed'].includes(req.query.status)) {
+            filters.status = req.query.status;
+        } else {
+            return res.status(400).json({ error: "Invalid status filter." });
+        }
+    }
+
+    if (isNaN(startDate) || isNaN(endDate) || startDate >= endDate) {
+        return res.status(400).json({ error: "Invalid startDate or endDate." });
+    }
+
+
+    if (page < 1 || limit < 1) {
+        return res.status(400).json({ error: "Invalid pagination parameters." });
+    }
+    if (limit > 100) {
+        return res.status(400).json({ error: "Limit exceeds maximum of 100." });
+    }
+    try {
+        const total = await prisma.bookings.count({
+            where: {
+                startDate: { gte: startDate },
+                endDate: { lte: endDate },
+                ...filters
+            }
+        });
+        const totalPages = Math.ceil(total / limit);
+
+        if (page > totalPages && totalPages !== 0) {
+            return res.status(400).json({ error: "Page number exceeds total pages." });
+        }
+
+        const bookings = await prisma.bookings.findMany({
+            skip: offset,
+            take: limit,
+            where: {
+                startDate: { gte: startDate },
+                endDate: { lte: endDate },
+                ...filters
+            },
+        });
+        return res.json({
+            page,
+            limit,
+            total,
+            totalPages,
+            data: bookings
+      });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve bookings." });
+    }
+}
+
+module.exports = { testeUserToken, updateBookingStatus, createBooking, getAllBookings };
