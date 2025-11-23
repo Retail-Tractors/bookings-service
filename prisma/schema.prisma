@@ -19,6 +19,7 @@ model Bookings {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
   paymentId  Int?
+  notes      String?
 }
 
 enum BookingStatus {
