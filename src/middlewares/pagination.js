@@ -1,4 +1,4 @@
-export function paginationMiddleware(req, res, next) {
+function paginationMiddleware(req, res, next) {
     logger.info("Pagination middleware invoked.");  
     let page = parseInt(req.query.page, 10) || 1;
     let limit = parseInt(req.query.limit, 10) || 10;
