@@ -17,7 +17,7 @@ router.put('/:id/status', authenticateBookingToken, bookingsController.updateBoo
 
 router.delete('/:id', authenticateUserToken, /*middleware for admin authentication ,*/ bookingsController.deleteBooking); // ADMIN only
 
-router.get('/user/:userId', authenticateUserToken, ensureSameUser, bookingsController.getBookingsByUserId);
+router.get('/user/:userId', authenticateUserToken, ensureSameUser, paginationMiddleware, bookingsController.getBookingsByUserId);
 
 router.get('/equipment/:equipmentId',authenticateUserToken , paginationMiddleware,/* checks if the user is authorized to view bookings for this equipment */  bookingsController.getBookingsByEquipmentId);
 

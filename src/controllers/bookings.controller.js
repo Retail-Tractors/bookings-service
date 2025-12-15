@@ -291,7 +291,7 @@ async function getBookingsByEquipmentId(req, res) {
     }
 
     try {
-        logger.info(`Retrieving bookings for userId: ${userId}, page: ${page}, limit: ${limit}`);
+        logger.info(`Retrieving bookings for equipmentId: ${equipmentId}, page: ${page}, limit: ${limit}`);
         const total = await prisma.bookings.count({
             where: { 
                 equipmentId: equipmentId, 

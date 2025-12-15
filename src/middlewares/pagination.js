@@ -1,3 +1,5 @@
+const logger = require("../utils/logger");
+
 function paginationMiddleware(req, res, next) {
     logger.info("Pagination middleware invoked.");  
     let page = parseInt(req.query.page, 10) || 1;

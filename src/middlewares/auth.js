@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const logger = require("../utils/logger");
 require("dotenv").config();
 
 // JWT interno do Booking Service (RS256)
@@ -23,7 +24,7 @@ function authenticateBookingToken(req, res, next) {
         }
         const publicKey = process.env.BOOKING_PUBLIC_KEY;
         if (!publicKey) {
-            console.error("BOOKING_PUBLIC_KEY is missing from environment");
+            logger.error("BOOKING_PUBLIC_KEY is missing from environment");
             return res.status(500).json({ error: "Server misconfiguration." });
         }
         // jwt.verify pode lançar erro síncrono → try/catch pega
@@ -42,7 +43,7 @@ function authenticateBookingToken(req, res, next) {
         );
 
     } catch (error) {
-        console.error("Token verification error:", error);
+        logger.error("Token verification error:", error);
         return res.status(500).json({ error: "Token verification failed." });
     }
 }
