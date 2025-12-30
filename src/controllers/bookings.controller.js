@@ -162,7 +162,7 @@ async function createBooking(req, res) {
         logger.info("Creating new booking record in the database.");
         const newBooking = await prisma.bookings.create({
             data: {
-                userId: req.user.id,
+                userId: parseInt(req.user.sub),
                 startDate: start,
                 endDate: end,
                 equipmentId,

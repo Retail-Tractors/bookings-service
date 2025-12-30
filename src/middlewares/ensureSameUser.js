@@ -3,7 +3,7 @@ const axios = require("axios");
 
 function ensureSameUser(req, res, next) {
     const paramUserId = parseInt(req.params.userId);
-    if (req.user.id !== paramUserId) {
+    if (parseInt(req.user.sub) !== paramUserId) {
         return res.status(403).json({ error: "Forbidden: you can only access your own bookings." });
     }
     next();
@@ -11,7 +11,7 @@ function ensureSameUser(req, res, next) {
 
 async function ensureUserIsAdmin(req, res, next) {
 
-    const requesterId = String(req.user.id);
+    const requesterId = req.user.sub;
     logger.info(`Requester ID: ${requesterId}`);
 
     try {

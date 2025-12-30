@@ -1,12 +1,13 @@
-const jwt = require("jsonwebtoken");
+const jose = require("jose");
 const logger = require("../utils/logger");
 require("dotenv").config();
 
 // JWT interno do Booking Service (RS256)
 const bookingPublicKey = process.env.BOOKING_PUBLIC_KEY.replace(/\\n/g, "\n");
 
-// JWT do User Service (HS256)
-const USER_JWT_SECRET = process.env.USER_SERVICE_JWT_SECRET;
+// JWT do User Service (RS256)
+const USER_JWKS_URL = new URL(process.env.JWKS_URL);
+const jwks = jose.createRemoteJWKSet(USER_JWKS_URL);
 
 function authenticateBookingToken(req, res, next) {
     try {
@@ -48,16 +49,18 @@ function authenticateBookingToken(req, res, next) {
     }
 }
 
-function authenticateUserToken(req, res, next) {
+async function authenticateUserToken(req, res, next) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ error: "User token missing." });
 
-    jwt.verify(token, USER_JWT_SECRET, (err, payload) => {
-        if (err) return res.status(403).json({ error: "Invalid user token." });
-        req.user = payload // id, email do usuário
-        next();
+    const { payload } = await jose.jwtVerify(token, jwks, {
+        issuer: 'retail-tractors-users-service',
+        audience: 'retail-tractors-users',
+        algorithms: ['RS256'],
     });
+    req.user = payload;
+    next();
 }
 
 module.exports = { authenticateBookingToken, authenticateUserToken };
